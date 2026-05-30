@@ -1,6 +1,3 @@
-# ከላይ ከነበረው መስመር ጋር እንዲህ አድርገህ አስተካክለው
-from handlers.feedback import feedback_conv, admin_reply_conv
-from handlers.feedback import feedback_conv
 import logging
 import threading
 import uvicorn
@@ -10,7 +7,7 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Conv
 from config.settings import settings
 from handlers.user import start_command, handle_static_buttons, show_portfolio_categories, navigate_portfolio
 
-# --- Admin & Order Imports (አንተ ካለህበት ኮድ እንደነበሩ ናቸው) ---
+# --- Admin & Order Imports ---
 from handlers.admin import (
     start_add_portfolio, category_chosen, media_uploaded,
     topic_entered, description_entered, confirm_post, cancel_action,
@@ -23,79 +20,69 @@ from handlers.admin import (
 from handlers.order import (
     start_order_flow, order_name_entered, order_phone_entered, order_type_chosen,
     order_location_entered, order_requirements_entered, order_quantity_chosen,
-    order_custom_quantity_entered, order_confirmed, cancel_order,
+    order_custom_quantity_entered, order_confirmation_handler, cancel_order,
     ORDER_NAME, ORDER_PHONE, ORDER_TYPE, ORDER_LOCATION, ORDER_REQUIREMENTS, ORDER_QUANTITY, ORDER_CUSTOM_QUANTITY, ORDER_CONFIRMATION
 )
 
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
+from handlers.feedback import feedback_conv, admin_reply_conv
 
-# --- FastAPI Setup (Render Keep-Alive) ---
+# ሎጊንግ ማዘጋጀት
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+
+# FastAPI ለኢንተርኔት መቀስቀሻ (Keep Alive)
 app = FastAPI()
 
 
-@app.get("/ping")
-async def ping():
-    return {"status": "ok"}
+@app.get("/")
+def read_root():
+    return {"status": "alive", "bot": "Nuhita Graphics"}
 
 
-def run_web_server():
-    # Render የሚጠቀምበትን port በ Environment variable ይፈልጋል፣ ካልሆነ 10000 ይጠቀማል
-    port = int(os.environ.get("PORT", 10000))
+@app.head("/")
+def head_root():
+    return {"status": "alive"}
+
+
+def run_server():
+    port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
 
 
 def main():
-    # 1. ዌብ ሰርቨሩን በሌላ Thread አስጀምር
-    threading.Thread(target=run_web_server, daemon=True).start()
+    # ሰርቨሩን በሌላ Thread ማስነሳት
+    threading.Thread(target=run_server, daemon=True).start()
 
-    # 2. የቴሌግራም ቦት Application
+    # የቴሌግራም አፕሊኬሽን መገንባት
     application = Application.builder().token(settings.BOT_TOKEN).build()
 
-    # --- Handlers (አንተ የጻፍካቸው) ---
-    application.add_handler(CommandHandler("start", start_command))
-    application.add_handler(CallbackQueryHandler(
-        handle_static_buttons, pattern="^user_(main_menu|contact|about)$"))
-    application.add_handler(CallbackQueryHandler(
-        show_portfolio_categories, pattern="^user_portfolio$"))
-    application.add_handler(CallbackQueryHandler(
-        navigate_portfolio, pattern="^view_cat_"))
-    application.add_handler(feedback_conv)
-    application.add_handler(admin_reply_conv)  # ይህንን አዲስ መስመር ጨምር
-
-    # Orders Handler
+    # 1. የትዕዛዝ (Order) Conversation Handler
     order_conv = ConversationHandler(
-        entry_points=[CallbackQueryHandler(start_order_flow, pattern="^user_order_start$"),
-                      CallbackQueryHandler(start_order_flow, pattern="^order_item_")],
+        entry_points=[CallbackQueryHandler(
+            start_order_flow, pattern="^user_order_start$")],
         states={
             ORDER_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, order_name_entered)],
-            ORDER_PHONE: [MessageHandler(filters.TEXT & ~filters.COMMAND, order_phone_entered),
-                          CallbackQueryHandler(order_phone_entered, pattern="^back_to_name$")],
-            ORDER_TYPE: [CallbackQueryHandler(order_type_chosen, pattern="^(type_|back_to_phone)")],
-            ORDER_LOCATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, order_location_entered),
-                             CallbackQueryHandler(order_location_entered, pattern="^back_to_type$")],
-            ORDER_REQUIREMENTS: [MessageHandler(filters.TEXT & ~filters.COMMAND, order_requirements_entered),
-                                 CallbackQueryHandler(order_requirements_entered, pattern="^back_from_req$")],
-            ORDER_QUANTITY: [CallbackQueryHandler(order_quantity_chosen, pattern="^(qty_|back_to_req)")],
-            ORDER_CUSTOM_QUANTITY: [MessageHandler(filters.TEXT & ~filters.COMMAND, order_custom_quantity_entered),
-                                    CallbackQueryHandler(order_custom_quantity_entered, pattern="^back_to_qty_opt$")],
+            ORDER_PHONE: [MessageHandler(filters.TEXT & ~filters.COMMAND, order_phone_entered)],
+            ORDER_TYPE: [CallbackQueryHandler(order_type_chosen, pattern="^order_type_")],
+            ORDER_LOCATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, order_location_entered)],
+            ORDER_REQUIREMENTS: [MessageHandler(filters.TEXT & ~filters.COMMAND, order_requirements_entered)],
+            ORDER_QUANTITY: [CallbackQueryHandler(order_quantity_chosen, pattern="^order_qty_")],
+            ORDER_CUSTOM_QUANTITY: [MessageHandler(filters.TEXT & ~filters.COMMAND, order_custom_quantity_entered)],
             ORDER_CONFIRMATION: [CallbackQueryHandler(
-                order_confirmed, pattern="^(order_confirm_submit|back_to_qty_opt)")]
+                order_confirmation_handler, pattern="^order_conf_")]
         },
         fallbacks=[CallbackQueryHandler(
-            cancel_order, pattern="^order_cancel$"), CommandHandler("cancel", cancel_order)]
+            cancel_order, pattern="^order_cancel$"), CommandHandler("cancel", cancel_order)],
+        per_chat=True
     )
     application.add_handler(order_conv)
 
-    # Admin Portfolio Handler
-    # 2. የ Add Portfolio (የፖርትፎሊዮ መመዝገቢያ) Conversation Handler
+    # 2. የፖርትፎሊዮ (Add Portfolio) Conversation Handler
     portfolio_conv = ConversationHandler(
         entry_points=[CallbackQueryHandler(
             start_add_portfolio, pattern="^admin_add_portfolio$")],
         states={
             CHOOSING_CATEGORY: [CallbackQueryHandler(category_chosen, pattern="^cat_")],
-            # 🚨 የጎደለው እና ዋናው ስህተት የነበረው መስመር ይህ ነው (ፎቶ እና ቪዲዮ ይቀበላል)፦
             UPLOADING_MEDIA: [MessageHandler(filters.PHOTO | filters.VIDEO, media_uploaded)],
             ENTERING_TOPIC: [MessageHandler(filters.TEXT & ~filters.COMMAND, topic_entered)],
             ENTERING_DESCRIPTION: [MessageHandler(filters.TEXT & ~filters.COMMAND, description_entered)],
@@ -107,7 +94,11 @@ def main():
     )
     application.add_handler(portfolio_conv)
 
-    # Broadcast Handler
+    # 3. የFeedback ማስተናገጃዎች
+    application.add_handler(feedback_conv)
+    application.add_handler(admin_reply_conv)
+
+    # 4. የማሰራጫ (Broadcast) Conversation Handler
     broadcast_conv = ConversationHandler(
         entry_points=[CommandHandler("broadcast", broadcast_command),
                       CallbackQueryHandler(broadcast_start_btn, pattern="^admin_send_broadcast$")],
@@ -117,9 +108,18 @@ def main():
     )
     application.add_handler(broadcast_conv)
 
-    # Other Admin Handlers
+    # 5. ሌሎች አጠቃላይ ማስተናገጃዎች (User & Admin Static)
+    application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("admin", admin_menu))
     application.add_handler(CommandHandler("verify", verify_command))
+    application.add_handler(CallbackQueryHandler(
+        show_portfolio_categories, pattern="^user_portfolio$"))
+    application.add_handler(CallbackQueryHandler(
+        navigate_portfolio, pattern="^(nav_|view_|back_to_cats$)"))
+    application.add_handler(CallbackQueryHandler(
+        handle_static_buttons, pattern="^user_(contact|about|main_menu)$"))
+
+    # የአድሚን ተጨማሪ ማስተናገጃዎች
     application.add_handler(CallbackQueryHandler(
         admin_toggle_main, pattern="^admin_toggle_active$"))
     application.add_handler(CallbackQueryHandler(
@@ -134,11 +134,8 @@ def main():
         handle_admin_callbacks, pattern="^(admin_verify_orders|v_nav_|v_close_|admin_export_csv|back_to_admin_main)"))
 
     print("🚀 Nuhita Graphics Bot is running with Web Server...")
-
-    # 3. Polling (read_timeout በመጨመር የTimeout ችግርን ይቀንሳል)
-    application.run_polling(
-        read_timeout=30, write_timeout=30, connect_timeout=30)
+    application.run_polling(close_loop=False, allowed_updates=[])
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
