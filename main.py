@@ -89,21 +89,23 @@ def main():
     application.add_handler(order_conv)
 
     # Admin Portfolio Handler
-    add_portfolio_conv = ConversationHandler(
+    # 2. የ Add Portfolio (የፖርትፎሊዮ መመዝገቢያ) Conversation Handler
+    portfolio_conv = ConversationHandler(
         entry_points=[CallbackQueryHandler(
-            start_add_portfolio, pattern="^admin_add_port$")],
+            start_add_portfolio, pattern="^admin_add_portfolio$")],
         states={
-            CHOOSING_CATEGORY: [CallbackQueryHandler(category_chosen, pattern="^add_cat_")],
+            CHOOSING_CATEGORY: [CallbackQueryHandler(category_chosen, pattern="^cat_")],
+            # 🚨 የጎደለው እና ዋናው ስህተት የነበረው መስመር ይህ ነው (ፎቶ እና ቪዲዮ ይቀበላል)፦
             UPLOADING_MEDIA: [MessageHandler(filters.PHOTO | filters.VIDEO, media_uploaded)],
             ENTERING_TOPIC: [MessageHandler(filters.TEXT & ~filters.COMMAND, topic_entered)],
             ENTERING_DESCRIPTION: [MessageHandler(filters.TEXT & ~filters.COMMAND, description_entered)],
             CONFIRMING_POST: [CallbackQueryHandler(
-                confirm_post, pattern="^admin_confirm_post")]
+                confirm_post, pattern="^post_(confirm|cancel)$")]
         },
-        fallbacks=[CallbackQueryHandler(
-            cancel_action, pattern="^admin_cancel$"), CommandHandler("cancel", cancel_action)]
+        fallbacks=[CommandHandler("cancel", cancel_action)],
+        per_chat=True
     )
-    application.add_handler(add_portfolio_conv)
+    application.add_handler(portfolio_conv)
 
     # Broadcast Handler
     broadcast_conv = ConversationHandler(
