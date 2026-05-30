@@ -32,7 +32,8 @@ async def admin_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, edit=Fa
 
     msg = "⚙️ **የአድሚን መቆጣጠሪያ ሰሌዳ (Admin Panel)፦**"
     kb = [
-        [InlineKeyboardButton("➕ Add Portfolio", callback_data="admin_add_port"),
+        # 🚨 እዚህ መስመር ላይ callback_data ወደ "admin_add_portfolio" ተቀይሯል፡
+        [InlineKeyboardButton("➕ Add Portfolio", callback_data="admin_add_portfolio"),
          InlineKeyboardButton("👁️ Active/Inactive", callback_data="admin_toggle_active")],
         [InlineKeyboardButton("🗑️ Delete", callback_data="admin_delete_main"),
          InlineKeyboardButton("📥 Verify Orders", callback_data="admin_verify_orders")],
@@ -84,16 +85,26 @@ async def category_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def media_uploaded(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """አድሚኑ የላከውን ፎቶ ወይም ቪዲዮ ይቀበላል"""
+    if not is_admin(update.effective_chat.id):
+        return ConversationHandler.END
+
+    # ፎቶ ወይም ቪዲዮ መሆኑን መለየት
     if update.message.photo:
+        # ትልቁን የፎቶ መጠን መውሰድ
         file_id = update.message.photo[-1].file_id
+        media_type = "photo"
     elif update.message.video:
         file_id = update.message.video.file_id
+        media_type = "video"
     else:
-        await update.message.reply_text("❌ እባክዎን ትክክለኛ ፎቶ ወይም ቪዲዮ ብቻ ይላኩ።")
+        await update.message.reply_text("❌ እባክዎን ትክክለኛ ፎቶ ወይም ቪዲዮ ብቻ ይላኩ!")
         return UPLOADING_MEDIA
 
-    context.user_data["add_port_file_id"] = file_id
-    await update.message.reply_text("📝 አሁን ደግሞ የዲዛይኑን ርዕስ (Topic) ያስገቡ፦\n(English & Amharic Mixed መሆን ይችላል)")
+    context.user_data["p_file_id"] = file_id
+    context.user_data["p_media_type"] = media_type
+
+    await update.message.reply_text("📝 አሁን ደግሞ ለዚህ ሥራ የሚሆን **ርዕስ (Topic)** ያስገቡላቸው፦")
     return ENTERING_TOPIC
 
 
