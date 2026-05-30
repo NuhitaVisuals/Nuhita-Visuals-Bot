@@ -54,10 +54,11 @@ def main():
 
     application = Application.builder().token(settings.BOT_TOKEN).build()
 
-    # 1. የትዕዛዝ (Order) Conversation Handler (ያንተን አዳዲስ ቁልፎች Pattern ጨምሬበታለሁ)
+    # 1. የትዕዛዝ (Order) Conversation Handler
+    # 🚨 Order this now አዝራር እንዲሰራ pattern ተስተካክሏል
     order_conv = ConversationHandler(
         entry_points=[CallbackQueryHandler(
-            start_order_flow, pattern="^user_order_start$")],
+            start_order_flow, pattern="^(user_order_start|order_now|order_this_now)$")],
         states={
             ORDER_NAME: [
                 CallbackQueryHandler(order_name_entered,
@@ -162,8 +163,10 @@ def main():
         admin_handle_delete, pattern="^adm_del_"))
     application.add_handler(CallbackQueryHandler(
         admin_back_button, pattern="^admin_back_to_menu$"))
+
+    # 🚨 Approve እና Reject አዝራሮች እንዲሰሩ v_app_ እና v_rej_ ወደ pattern ተጨምረዋል
     application.add_handler(CallbackQueryHandler(
-        handle_admin_callbacks, pattern="^(admin_verify_orders|v_nav_|v_close_|admin_export_csv|back_to_admin_main)"))
+        handle_admin_callbacks, pattern="^(admin_verify_orders|v_nav_|v_close_|v_app_|v_rej_|admin_export_csv|back_to_admin_main)"))
 
     print("🚀 Nuhita Graphics Bot is running with Web Server...")
     application.run_polling(close_loop=False, allowed_updates=Update.ALL_TYPES)

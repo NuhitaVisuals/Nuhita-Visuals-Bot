@@ -112,9 +112,12 @@ async def topic_entered(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def description_entered(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["p_description"] = update.message.text
 
+    # 🚨 ማስተካከያ፦ ከ Social_Media ላይ አንደርስኮሩን ማጥፋት (ለማሳያ ብቻ)
+    display_category = context.user_data['p_category'].replace('_', ' ')
+
     caption = (
         f"✨ **የሥራው ርዕስ፦** {context.user_data['p_topic']}\n"
-        f"📂 **ዘርፍ፦** {context.user_data['p_category']}\n\n"
+        f"📂 **ዘርፍ፦** {display_category}\n\n"
         f"📝 **ማብራሪያ፦**\n{context.user_data['p_description']}"
     )
 
@@ -137,7 +140,6 @@ async def confirm_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if query.data == "post_confirm":
         try:
-            # ሰንጠረዡ በ Supabase SQL መሠረት ወደ portfolio_items ተስተካክሏል
             db.table("portfolio_items").insert({
                 "category": context.user_data["p_category"],
                 "file_id": context.user_data["p_file_id"],
