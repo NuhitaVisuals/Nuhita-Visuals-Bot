@@ -42,7 +42,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         print(f"Error saving user: {e}")
 
     welcome_text = (
-        "✨ **Welcome to Barrok Creative Portfolio Bot!** ✨\n\n"
+        "✨ **Welcome to Nuhita Graphics Portfolio Bot!** ✨\n\n"
         "የፈጠራ እና የዲጂታል መፍትሄዎች ማዕከል። እዚህ አዳዲስ የዲዛይን ስራዎቻችንን ማየት፣ "
         "ትዕዛዝ ማስተናገድ እና እኛን ማግኘት ይችላሉ።"
     )
@@ -55,26 +55,33 @@ async def handle_static_buttons(update: Update, context: ContextTypes.DEFAULT_TY
 
     if query.data == "user_main_menu":
         welcome_text = (
-            "✨ **Welcome to Barrok Creative Portfolio Bot!** ✨\n\n"
+            "✨ **Welcome to Nuhita Graphics Portfolio Bot!** ✨\n\n"
             "የፈጠራ እና የዲጂታል መፍትሄዎች ማዕከል። እዚህ አዳዲስ የዲዛይን ስራዎቻችንን ማየት፣ "
             "ትዕዛዝ ማስተናገድ እና እኛን ማግኘት ይችላሉ።"
         )
         await query.edit_message_text(text=welcome_text, reply_markup=get_main_menu_keyboard(), parse_mode="Markdown")
 
     elif query.data == "user_contact":
+        # parse_mode="HTML" በመጠቀም የ Markdown ስህተትን እንከላከላለን
         contact_text = (
-            "📞 **Contact Our Creative Team (Barrok Creative):**\n\n"
-            f"💬 **Telegram:** @{settings.DESIGNER_USERNAME}\n"
-            f"📱 **Phone:** {settings.DESIGNER_PHONE}\n\n"
-            "ማንኛውም ሰዓት መልዕክት ቢተውልን ፈጣን ምላሽ እንሰጣለን!"
+            "📞 <b>Contact Us / ያግኙን</b>\n\n"
+            f"📱 <b>Phone:</b> {settings.DESIGNER_PHONE}\n"
+            f"✈️ <b>Telegram Address:</b> @{settings.DESIGNER_USERNAME}\n\n"
+            "💡 ማንኛውንም ጥያቄ ወይም ተጨማሪ መረጃ ከፈለጉ ከላይ ባለው አድራሻ ሊያገኙን ይችላሉ።"
         )
         keyboard = [[InlineKeyboardButton(
-            "🔙 Back to Menu", callback_data="user_main_menu")]]
-        await query.edit_message_text(text=contact_text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
+            "🏠 Main Menu", callback_data="user_main_menu")]]
+
+        # እዚህ ጋር parse_mode="HTML" መደረጉን ልብ በል
+        await query.edit_message_text(
+            text=contact_text,
+            reply_markup=InlineKeyboardMarkup(keyboard),
+            parse_mode="HTML"
+        )
 
     elif query.data == "user_about":
         about_text = (
-            "ℹ️ **About Barrok Creative (ስለ ባሮክ ክሬቲቭ):**\n\n"
+            "ℹ️ **About Nuhita Graphics (ስለ Nuhita Graphics):**\n\n"
             "እኛ ዲዛይንን ከቢዝነስ እይታ ጋር አቆራኝተን የምንሰራ የፈጠራ ባለሙያዎች ነን። "
             "ስራዎቻችን ዝም ብለው የሚያምሩ ብቻ ሳይሆኑ ለድርጅትዎ ሽያጭ እና እድገት እሴት የሚጨምሩ "
             "(Business-Minded Designs) ናቸው። አብረን ስለሰራን ደስ ብሎናል።"
@@ -153,7 +160,7 @@ async def navigate_portfolio(update: Update, context: ContextTypes.DEFAULT_TYPE)
             "🔙 Back to Categories", callback_data="user_portfolio")]]
         try:
             await query.edit_message_text(
-                text="📭 **በዚህ ዘርፍ በአሁን ሰዓት የተቀመጡ የዲዛይን ስራዎች የሉም።**",
+                text="📭 **Dear Client, በዚህ ዘርፍ በአሁን ሰዓት የተቀመጡ የዲዛይን ስራዎች የሉም።**",
                 reply_markup=InlineKeyboardMarkup(keyboard),
                 parse_mode="Markdown"
             )
@@ -164,7 +171,7 @@ async def navigate_portfolio(update: Update, context: ContextTypes.DEFAULT_TYPE)
                 pass
             await context.bot.send_message(
                 chat_id=query.message.chat_id,
-                text="📭 **በዚህ ዘርፍ በአሁን ሰዓት የተቀመጡ የዲዛይን ስራዎች የሉም።**",
+                text="📭 **Dear Client, በዚህ ዘርፍ በአሁን ሰዓት የተቀመጡ የዲዛይን ስራዎች የሉም።**",
                 reply_markup=InlineKeyboardMarkup(keyboard),
                 parse_mode="Markdown"
             )

@@ -14,7 +14,7 @@ ORDER_NAME, ORDER_PHONE, ORDER_TYPE, ORDER_LOCATION, ORDER_REQUIREMENTS, ORDER_Q
 
 
 async def prompt_name(update: Update, context: ContextTypes.DEFAULT_TYPE, text_prefix="", edit=False):
-    msg = f"{text_prefix}የ Barrok Creative የትዕዛዝ መስጫ ቅጽ\n\nለመጀመር እባክዎን የእርስዎን ወይም የድርጅትዎን ሙሉ ስም ያስገቡ："
+    msg = f"{text_prefix}የ Nuhita Graphics የትዕዛዝ መስጫ ቅጽ\n\nለመጀመር እባክዎን የእርስዎን ወይም የድርጅትዎን ሙሉ ስም ያስገቡ："
     kb = [[InlineKeyboardButton(
         "❌ Cancel Order", callback_data="order_cancel")]]
 
@@ -127,7 +127,7 @@ async def prompt_confirmation(update: Update, context: ContextTypes.DEFAULT_TYPE
         f"Location: {data.get('location', 'N/A')}\n"
         f"Details: {data.get('what_to_make')}\n"
         f"Quantity: {data.get('quantity')}\n\n"
-        "ይህ ትዕዛዝዎ በትክክል ተመዝግቦ ለባሮክ ክሬቲቭ ቡድን ይላክ?"
+        "ይህ ትዕዛዝዎ በትክክል ተመዝግቦ ለ Nuhita Graphics ቡድን ይላክ?"
     )
     kb = [
         [InlineKeyboardButton("✅ Confirm & Send Order",
@@ -295,11 +295,11 @@ async def order_confirmed(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "status": "Pending"
             }).execute()
 
-            await query.edit_message_text("Your order has been accepted! We will contact you soon. Dear client, ስለመረጡን እናመሰግናለን።")
+            await query.edit_message_text("✅Your order has been accepted! We will contact you soon. Dear client, ስለመረጡን እናመሰግናለን።")
 
             # ለአድሚን የሚደርስ ፈጣን የትዕዛዝ ማሳወቂያ
             admin_alert = (
-                "🔔 አዲስ የትዕዛዝ መልዕክት ደርሷል! (New Order)\n\n"
+                "🔔 Nuhamin አዲስ የትዕዛዝ መልዕክት ደርሷል! (New Order)\n\n"
                 f"Client Name: {data.get('client_name')}\n"
                 f"Phone Number: {data.get('phone_number')}\n"
                 f"Order Type: {data.get('order_type')}\n"

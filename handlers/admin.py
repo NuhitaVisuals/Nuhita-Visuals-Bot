@@ -320,7 +320,7 @@ async def show_pending_order(update: Update, context: ContextTypes.DEFAULT_TYPE,
         return
 
     if not orders:
-        msg = "📥 በአሁኑ ሰዓት ምንም ያልተረጋገጠ (Pending) ትዕዛዝ የለም።"
+        msg = "📥 Nuhamin, በአሁኑ ሰዓት ምንም ያልተረጋገጠ (Pending) ትዕዛዝ የለም።"
         kb = [[InlineKeyboardButton(
             "⬅️ Back to Admin Panel", callback_data="back_to_admin_main")]]
         if edit and update.callback_query:
@@ -390,7 +390,7 @@ async def close_order_action(update: Update, context: ContextTypes.DEFAULT_TYPE,
             "🎉 ስራዎ በስኬት ተጠናቋል! (Order Successfully Completed!)\n\n"
             "Dear client, ከእኛ ጋር አብረው ስለሰሩ እና ስላመኑን እጅግ አድርገን እናመሰግናለን። "
             "በቀጣይም አብረን ትልልቅ ለውጥ የሚያመጡ እና ለቢዝነስዎ እሴት የሚጨምሩ ስራዎችን እንደምንሰራ ሙሉ ተስፋ አለን!\n\n"
-            "Aser Production - Creative Partner"
+            "Nuhita Visuals🤝"
         )
         try:
             await context.bot.send_message(chat_id=order_data["chat_id"], text=success_msg)
@@ -444,7 +444,7 @@ async def export_csv_action(update: Update, context: ContextTypes.DEFAULT_TYPE):
             chat_id=update.effective_chat.id,
             document=csv_buffer,
             filename="orders_report.csv",
-            caption="📊 የAser Production ትዕዛዞች ሪፖርት (በኢትዮጵያ ሰዓት)"
+            caption="📊 የ Nuhita Visuals ትዕዛዞች ሪፖርት (በኢትዮጵያ ሰዓት)"
         )
     except Exception as e:
         await context.bot.send_message(chat_id=update.effective_chat.id, text="❌ ሪፖርቱን ማውረድ አልተቻለም።")

@@ -131,7 +131,7 @@ def main():
     application.add_handler(CallbackQueryHandler(
         handle_admin_callbacks, pattern="^(admin_verify_orders|v_nav_|v_close_|admin_export_csv|back_to_admin_main)"))
 
-    print("🚀 Barrok Creative Bot is running with Web Server...")
+    print("🚀 Nuhita Graphics Bot is running with Web Server...")
 
     # 3. Polling (read_timeout በመጨመር የTimeout ችግርን ይቀንሳል)
     application.run_polling(

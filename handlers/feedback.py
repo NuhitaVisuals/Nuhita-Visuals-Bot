@@ -33,7 +33,7 @@ async def receive_feedback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     item_id = context.user_data.get("feedback_item_id", "Unknown")
 
     feedback_report = (
-        "💡 **አዲስ አስተያየት (New Feedback) ደርሷል!**\n\n"
+        "💡 **Dear Nuhita, አዲስ አስተያየት (New Feedback) ደርሷል!**\n\n"
         f"👤 **ከተጠቃሚ፦** {full_name} (@{username})\n"
         f"🆔 **የተጠቃሚ ID፦** `{chat_id}`\n"
         f"🖼️ **የስራው (Portfolio) ID፦** `{item_id}`\n\n"
@@ -79,7 +79,7 @@ async def start_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text=f"🔄 **ለተጠቃሚው (ID: {target_user_id}) የሚልኩትን ምላሽ ይጻፉ፦**\n\n_(ለማቋረጥ /cancel ይበሉ)_"
+        text=f"🔄 ለተጠቃሚው (ID: {target_user_id}) የሚልኩትን ምላሽ ይጻፉ✍🏿፦\n\n_(ለማቋረጥ /cancel ይበሉ)_"
     )
     return ADMIN_REPLY_WAITING
 
@@ -95,7 +95,7 @@ async def send_admin_reply_to_user(update: Update, context: ContextTypes.DEFAULT
     try:
         # ለአድሚኑ መልዕክት የተላከበትን ፎርማት ማዘጋጀት
         reply_text = (
-            "✉️ **ከ Barrok Creative አድሚን የተላከ ምላሽ፦**\n\n"
+            "✉️ **ከ Nuhita Graphics አድሚን የተላከ ምላሽ፦**\n\n"
             f"{admin_msg.text}"
         )
         # ለተጠቃሚው ይላካል
