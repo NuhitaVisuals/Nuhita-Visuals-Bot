@@ -267,7 +267,7 @@ async def order_custom_quantity_entered(update: Update, context: ContextTypes.DE
     return await prompt_confirmation(update, context, edit=False)
 
 
-async def order_confirmed(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def order_confirmation(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """ትዕዛዙን አረጋግጦ ዳታቤዝ ላይ ይጭናል"""
     if not update.callback_query:
         return ORDER_CONFIRMATION

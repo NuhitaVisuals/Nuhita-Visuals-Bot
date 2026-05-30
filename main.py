@@ -31,7 +31,6 @@ from handlers.feedback import feedback_conv, admin_reply_conv
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# FastAPI ለኢንተርኔት መቀስቀሻ (Keep Alive)
 app = FastAPI()
 
 
@@ -51,26 +50,57 @@ def run_server():
 
 
 def main():
-    # ሰርቨሩን በሌላ Thread ማስነሳት
     threading.Thread(target=run_server, daemon=True).start()
 
-    # የቴሌግራም አፕሊኬሽን መገንባት
     application = Application.builder().token(settings.BOT_TOKEN).build()
 
-    # 1. የትዕዛዝ (Order) Conversation Handler
+    # 1. የትዕዛዝ (Order) Conversation Handler (ያንተን አዳዲስ ቁልፎች Pattern ጨምሬበታለሁ)
     order_conv = ConversationHandler(
         entry_points=[CallbackQueryHandler(
             start_order_flow, pattern="^user_order_start$")],
         states={
-            ORDER_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, order_name_entered)],
-            ORDER_PHONE: [MessageHandler(filters.TEXT & ~filters.COMMAND, order_phone_entered)],
-            ORDER_TYPE: [CallbackQueryHandler(order_type_chosen, pattern="^order_type_")],
-            ORDER_LOCATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, order_location_entered)],
-            ORDER_REQUIREMENTS: [MessageHandler(filters.TEXT & ~filters.COMMAND, order_requirements_entered)],
-            ORDER_QUANTITY: [CallbackQueryHandler(order_quantity_chosen, pattern="^order_qty_")],
-            ORDER_CUSTOM_QUANTITY: [MessageHandler(filters.TEXT & ~filters.COMMAND, order_custom_quantity_entered)],
-            ORDER_CONFIRMATION: [CallbackQueryHandler(
-                order_confirmation, pattern="^order_conf_")]
+            ORDER_NAME: [
+                CallbackQueryHandler(order_name_entered,
+                                     pattern="^back_to_name$"),
+                MessageHandler(filters.TEXT & ~filters.COMMAND,
+                               order_name_entered)
+            ],
+            ORDER_PHONE: [
+                CallbackQueryHandler(order_phone_entered,
+                                     pattern="^back_to_name$"),
+                MessageHandler(filters.TEXT & ~filters.COMMAND,
+                               order_phone_entered)
+            ],
+            ORDER_TYPE: [
+                CallbackQueryHandler(
+                    order_type_chosen, pattern="^(type_|back_to_phone)")
+            ],
+            ORDER_LOCATION: [
+                CallbackQueryHandler(order_location_entered,
+                                     pattern="^back_to_type$"),
+                MessageHandler(filters.TEXT & ~filters.COMMAND,
+                               order_location_entered)
+            ],
+            ORDER_REQUIREMENTS: [
+                CallbackQueryHandler(
+                    order_requirements_entered, pattern="^back_from_req$"),
+                MessageHandler(filters.TEXT & ~filters.COMMAND,
+                               order_requirements_entered)
+            ],
+            ORDER_QUANTITY: [
+                CallbackQueryHandler(order_quantity_chosen,
+                                     pattern="^(qty_|back_to_req)")
+            ],
+            ORDER_CUSTOM_QUANTITY: [
+                CallbackQueryHandler(
+                    order_custom_quantity_entered, pattern="^back_to_qty_opt$"),
+                MessageHandler(filters.TEXT & ~filters.COMMAND,
+                               order_custom_quantity_entered)
+            ],
+            ORDER_CONFIRMATION: [
+                CallbackQueryHandler(
+                    order_confirmation, pattern="^(order_confirm_submit|back_to_qty_opt)$")
+            ]
         },
         fallbacks=[CallbackQueryHandler(
             cancel_order, pattern="^order_cancel$"), CommandHandler("cancel", cancel_order)],
@@ -90,7 +120,8 @@ def main():
             CONFIRMING_POST: [CallbackQueryHandler(
                 confirm_post, pattern="^post_(confirm|cancel)$")]
         },
-        fallbacks=[CommandHandler("cancel", cancel_action)],
+        fallbacks=[CommandHandler("cancel", cancel_action), CallbackQueryHandler(
+            cancel_action, pattern="^post_cancel$")],
         per_chat=True
     )
     application.add_handler(portfolio_conv)
@@ -109,7 +140,7 @@ def main():
     )
     application.add_handler(broadcast_conv)
 
-    # 5. ሌሎች አጠቃላይ ማስተናገጃዎች (User & Admin Static)
+    # 5. ሌሎች አጠቃላይ ማስተናገጃዎች
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("admin", admin_menu))
     application.add_handler(CommandHandler("verify", verify_command))
