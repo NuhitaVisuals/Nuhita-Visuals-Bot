@@ -4,6 +4,7 @@ import uvicorn
 import os
 from fastapi import FastAPI
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ConversationHandler, MessageHandler, filters
+from telegram import Update
 from config.settings import settings
 from handlers.user import start_command, handle_static_buttons, show_portfolio_categories, navigate_portfolio
 
@@ -20,7 +21,7 @@ from handlers.admin import (
 from handlers.order import (
     start_order_flow, order_name_entered, order_phone_entered, order_type_chosen,
     order_location_entered, order_requirements_entered, order_quantity_chosen,
-    order_custom_quantity_entered, order_confirmation_handler, cancel_order,
+    order_custom_quantity_entered, order_confirmation, cancel_order,
     ORDER_NAME, ORDER_PHONE, ORDER_TYPE, ORDER_LOCATION, ORDER_REQUIREMENTS, ORDER_QUANTITY, ORDER_CUSTOM_QUANTITY, ORDER_CONFIRMATION
 )
 
@@ -69,7 +70,7 @@ def main():
             ORDER_QUANTITY: [CallbackQueryHandler(order_quantity_chosen, pattern="^order_qty_")],
             ORDER_CUSTOM_QUANTITY: [MessageHandler(filters.TEXT & ~filters.COMMAND, order_custom_quantity_entered)],
             ORDER_CONFIRMATION: [CallbackQueryHandler(
-                order_confirmation_handler, pattern="^order_conf_")]
+                order_confirmation, pattern="^order_conf_")]
         },
         fallbacks=[CallbackQueryHandler(
             cancel_order, pattern="^order_cancel$"), CommandHandler("cancel", cancel_order)],
@@ -134,7 +135,7 @@ def main():
         handle_admin_callbacks, pattern="^(admin_verify_orders|v_nav_|v_close_|admin_export_csv|back_to_admin_main)"))
 
     print("🚀 Nuhita Graphics Bot is running with Web Server...")
-    application.run_polling(close_loop=False, allowed_updates=[])
+    application.run_polling(close_loop=False, allowed_updates=Update.ALL_TYPES)
 
 
 if __name__ == '__main__':

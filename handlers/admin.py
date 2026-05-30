@@ -137,7 +137,7 @@ async def confirm_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if query.data == "post_confirm":
         try:
-            # 🚨 እዚህ ጋር የሰንጠረዡ ስም ከ "portfolio" ወደ "portfolio_items" ተስተካክሏል፡
+            # ሰንጠረዡ በ Supabase SQL መሠረት ወደ portfolio_items ተስተካክሏል
             db.table("portfolio_items").insert({
                 "category": context.user_data["p_category"],
                 "file_id": context.user_data["p_file_id"],
@@ -167,7 +167,6 @@ async def admin_toggle_main(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     try:
-        # 🚨 የሰንጠረዥ ስም እዚህም ወደ portfolio_items ተቀይሯል
         items = db.table("portfolio_items").select(
             "id, topic, is_active").execute().data
     except Exception:
@@ -195,7 +194,6 @@ async def admin_handle_toggle(update: Update, context: ContextTypes.DEFAULT_TYPE
     await query.answer()
     item_id = int(query.data.replace("adm_tg_", ""))
     try:
-        # 🚨 የሰንጠረዥ ስም እዚህም ወደ portfolio_items ተቀይሯል
         current = db.table("portfolio_items").select(
             "is_active").eq("id", item_id).execute().data[0]
         new_status = not current['is_active']
@@ -212,7 +210,6 @@ async def admin_delete_main(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     try:
-        # 🚨 portfolio_items ተስተካክሏል
         items = db.table("portfolio_items").select("id, topic").execute().data
     except Exception:
         await query.edit_message_text("🚨 የፖርትፎሊዮ መረጃዎችን ማግኘት አልተቻለም።")
@@ -238,7 +235,6 @@ async def admin_handle_delete(update: Update, context: ContextTypes.DEFAULT_TYPE
     await query.answer()
     item_id = int(query.data.replace("adm_del_", ""))
     try:
-        # 🚨 portfolio_items ተስተካክሏል
         db.table("portfolio_items").delete().eq("id", item_id).execute()
     except Exception:
         pass
