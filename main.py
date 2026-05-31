@@ -58,7 +58,7 @@ def main():
     # 🚨 Order this now አዝራር እንዲሰራ pattern ተስተካክሏል
     order_conv = ConversationHandler(
         entry_points=[CallbackQueryHandler(
-            start_order_flow, pattern="^(user_order_start|order_now|order_this_now)$")],
+            start_order_flow, pattern="^(user_order_start|order_now|order_this_now|order_item_.*)$")],
         states={
             ORDER_NAME: [
                 CallbackQueryHandler(order_name_entered,
